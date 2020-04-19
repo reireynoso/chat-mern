@@ -1,6 +1,26 @@
-const chatForm = document.getElementById("chat-form")
-const chatMessages = document.querySelector('.chat-messages')
+const chatForm = document.getElementById("chat-form");
+const chatMessages = document.querySelector('.chat-messages');
+const roomName = document.getElementById('room-name');
+const userList = document.getElementById('users');
 const socket = io();
+
+
+// get username and room from url
+const {username, room} = Qs.parse(location.search, {
+    ignoreQueryPrefix: true
+})
+
+// join chatroom
+socket.emit('joinRoom', {
+    username,
+    room
+})
+
+// get room and users
+socket.on('roomUsers', ({room, users}) => {
+    outputRoomName(room)
+    outputUsers(users)
+})
 
 // message from server
 socket.on('message', message => {
@@ -31,9 +51,22 @@ chatForm.addEventListener('submit', (e) => {
 const outputMessage = (message) => {
     const div = document.createElement('div')
     div.classList.add('message');
-    div.innerHTML = `<p class="meta">Brad <span>9:12pm</span></p>
+    div.innerHTML = `<p class="meta">${message.username} <span>${message.time}</span></p>
         <p class="text">
-            ${message}
+            ${message.text}
         </p>`
     document.getElementsByClassName("chat-messages")[0].append(div)
+}
+
+// Add Room name to DOM
+
+function outputRoomName(room){
+    roomName.innerText = room
+}
+
+// Add users to DOM
+function outputUsers(users){
+    userList.innerHTML = `
+        ${users.map(user => `<li>${user.username}</li>`).join()}
+    `
 }
