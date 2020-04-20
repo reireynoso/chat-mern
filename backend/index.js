@@ -2,6 +2,8 @@ const express = require('express')
 const socketio = require('socket.io')
 const http = require('http')
 
+const {addUser, removeUser, getUser, getUsersInRoom } = require('./users')
+
 const PORT = process.env.PORT || 4000
 const app = express();
 
@@ -18,6 +20,27 @@ const io = socketio(server); //instance of socketio
 //register clients joining and leaving the chat application
 io.on('connection', (socket) => {
     console.log('we have new connection')
+
+    //handler for receiving emit from client. first arg has to match
+    //On socket.on, and socket.emit, the callback func can take in another callback func as a second arg in params
+    socket.on('join', ({name, room}, callback) => {
+        const {error, user} = addUser({id: socket.id, name, room})
+
+        if(error){
+            return callback(error)
+        }
+
+        socket.join(user.room) //joins a user in a room
+
+        socket.emit('message', {user: 'admin', text: `${user.name}. Welcome to the room, ${user.room}`})
+        socket.broadcast.to(user.room).emit('message', {user: 'admin', text:`${user.name} has joined`})// will send a message to everyone but that user
+        // const error = true;
+        // if(error){
+        //     callback({error: 'error'}) // trigger a response after socket.on is being emitted , error handling
+        // }
+
+        callback()
+    })
 
     //managing the specific socket
     socket.on('disconnect', () => {
