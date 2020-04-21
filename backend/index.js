@@ -38,8 +38,8 @@ io.on('connection', (socket) => {
         // if(error){
         //     callback({error: 'error'}) // trigger a response after socket.on is being emitted , error handling
         // }
-
-        callback()
+        io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
+        callback();
         
     })
 
@@ -48,13 +48,17 @@ io.on('connection', (socket) => {
         const user = getUser(socket.id);
 
         io.to(user.room).emit('message', {user: user.name, text: message})
-
+        io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
         callback()
     })
 
     //managing the specific socket
     socket.on('disconnect', () => {
-        console.log("user had left")
+        // console.log("user had left")
+        const user = removeUser(socket.id)
+        if(user){
+            io.to(user.room).emit('message', {user: 'admin', text: `${user.name} has left.`})
+        }
     })
 })
 
