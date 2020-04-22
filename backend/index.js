@@ -1,6 +1,7 @@
 const express = require('express')
 const socketio = require('socket.io')
 const http = require('http')
+const moment = require('moment')
 
 const {addUser, removeUser, getUser, getUsersInRoom } = require('./users')
 
@@ -32,7 +33,7 @@ io.on('connection', (socket) => {
 
         socket.join(user.room) //joins a user in a room
 
-        socket.emit('message', {user: 'admin', text: `${user.name}. Welcome to the room, ${user.room}`})
+        socket.emit('message', {user: 'admin', text: `${user.name}. Welcome to the room, ${user.room}`, time: moment().format('h:mm a')})
         socket.broadcast.to(user.room).emit('message', {user: 'admin', text:`${user.name} has joined`})// will send a message to everyone but that user
         // const error = true;
         // if(error){
@@ -47,7 +48,7 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', (message, callback) => {
         const user = getUser(socket.id);
 
-        io.to(user.room).emit('message', {user: user.name, text: message})
+        io.to(user.room).emit('message', {user: user.name, text: message, time: moment().format('h:mm a')})
         io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
         callback()
     })

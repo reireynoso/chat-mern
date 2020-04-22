@@ -51,6 +51,7 @@ const Chat = ({location}) => {
     useEffect(() => {
         socket.on('message', (message) => {
             setMessages([...messages, message])
+            console.log(message)
         })
     }, [messages])
 
@@ -72,7 +73,6 @@ const Chat = ({location}) => {
                 setMessage('')
             })
         }
-        // console.log(message, messages)
     }
     return (
         

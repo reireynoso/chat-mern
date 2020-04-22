@@ -18,12 +18,19 @@
   .messageText img {
     vertical-align: middle;
   }
+
+  .user-time {
+    text-align: right;
+  }
   
   .messageContainer {
-    display: flex;
-    justify-content: flex-end;
+    flex-direction: column;
     padding: 0 5%;
     margin-top: 3px;
+  }
+
+  .messageContainerInner {
+    display: flex;
   }
   
   .sentText {

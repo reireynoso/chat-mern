@@ -2,11 +2,11 @@ import React from 'react'
 import './TextContainer.css'
 
 const TextContainer = ({users}) => {
-    console.log(users)
+    // console.log(users)
     return (
         <div className="user-container">
             <div className="user-header">
-                Users
+                <h3>Users</h3>
             </div>
 
             <div className="user-body">
