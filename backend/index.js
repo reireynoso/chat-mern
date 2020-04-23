@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
 
     socket.on('typing', (info, callback) => {
         // console.log(info)
-        socket.broadcast.to(info.room).emit('typing', info.name)
+        socket.broadcast.to(info.room).emit('typing', info)
         callback()
     })
 
@@ -54,6 +54,7 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', (message, callback) => {
         const user = getUser(socket.id);
         // console.log(message)
+        socket.to(user.room).emit('typing', {name: user.name, value: "", room: user.room})
         io.to(user.room).emit('message', {user: user.name, text: message, time: moment().format('h:mm a')})
         io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
         callback()

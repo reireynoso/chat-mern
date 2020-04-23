@@ -52,13 +52,13 @@ const Chat = ({location}) => {
     useEffect(() => {
         // handle typing
         socket.on('typing', (info) => {
-            // console.log(info)
-            // debugger
-            // if(!typers.includes(info)){
-            //     console.log(info)
             setTypers(typers => {
-                if(!typers.includes(info)){
-                    return [...typers, info]
+                if(!typers.includes(info.name)){
+                    return [...typers, info.name]
+                }
+                else if(!info.value){
+                    const remove = typers.filter(typer => typer !== info.name)
+                    return remove                    
                 }
                 return typers
             })
@@ -104,7 +104,7 @@ const Chat = ({location}) => {
     }
 
     const handleSetMessage = (value) => {
-        socket.emit('typing', {name,room}, () => {
+        socket.emit('typing', {name,room,value}, () => {
             setMessage(value)
         })
     }
