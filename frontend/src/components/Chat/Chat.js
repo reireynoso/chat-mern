@@ -6,6 +6,7 @@ import InfoBar from '../InfoBar/InfoBar'
 import Input from '../Input/Input'
 import Messages from '../Messages/Messages'
 import TextContainer from '../TextContainer/TextContainer'
+import Type from '../Type/type'
 
 let socket;
 
@@ -16,6 +17,7 @@ const Chat = ({location}) => {
     const [users, setUsers] = useState([])
     const [message, setMessage] = useState([])
     const [messages, setMessages] = useState([])
+    const [typers, setTypers] = useState([])
     const ENDPOINT = 'localhost:4000'
     
 
@@ -47,23 +49,49 @@ const Chat = ({location}) => {
         }
     }, [ENDPOINT, location.search])
 
-    //handle messaging
     useEffect(() => {
+        // handle typing
+        socket.on('typing', (info) => {
+            // console.log(info)
+            // debugger
+            // if(!typers.includes(info)){
+            //     console.log(info)
+            setTypers(typers => {
+                if(!typers.includes(info)){
+                    return [...typers, info]
+                }
+                return typers
+            })
+            // }
+        })
+        //handle messaging
         socket.on('message', (message) => {
-            setMessages([...messages, message])
+            setMessages(messages => [...messages, message])
             console.log(message)
         })
-    }, [messages])
-
-    // get users in room
-    useEffect(() => {
+        
+        // get users in room
         socket.on('roomData', (users) => {
             // console.log(users)
             setUsers(users.users)
         })
+    },[])
 
-        // console.log(users)
-    }, [users])
+    // useEffect(() => {
+    //     socket.on('message', (message) => {
+    //         setMessages([...messages, message])
+    //         console.log(message)
+    //     })
+    // }, [messages])
+
+    // useEffect(() => {
+    //     socket.on('roomData', (users) => {
+    //         // console.log(users)
+    //         setUsers(users.users)
+    //     })
+
+    //     // console.log(users)
+    // }, [users])
 
     //function for sending messages
     const sendMessage = (e) => {
@@ -74,6 +102,13 @@ const Chat = ({location}) => {
             })
         }
     }
+
+    const handleSetMessage = (value) => {
+        socket.emit('typing', {name,room}, () => {
+            setMessage(value)
+        })
+    }
+    
     return (
         
         <div className="outerContainer">
@@ -81,7 +116,10 @@ const Chat = ({location}) => {
             <div className="container">
                 <InfoBar room={room}/>
                 <Messages messages={messages} name={name}/>
-                <Input message={message} setMessage={setMessage} sendMessage={sendMessage}/>
+                {
+                    typers.length !== 0 && <Type typers={typers}/>
+                }
+                <Input message={message} setMessage={handleSetMessage} sendMessage={sendMessage}/>
             </div>
             <TextContainer users={users}/>
         </div>

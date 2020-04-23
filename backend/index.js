@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
         socket.join(user.room) //joins a user in a room
 
         socket.emit('message', {user: 'admin', text: `${user.name}. Welcome to the room, ${user.room}`, time: moment().format('h:mm a')})
-        socket.broadcast.to(user.room).emit('message', {user: 'admin', text:`${user.name} has joined`})// will send a message to everyone but that user
+        socket.broadcast.to(user.room).emit('message', {user: 'admin', text:`${user.name} has joined`, time: moment().format('h:mm a')})// will send a message to everyone but that user
         // const error = true;
         // if(error){
         //     callback({error: 'error'}) // trigger a response after socket.on is being emitted , error handling
@@ -44,10 +44,16 @@ io.on('connection', (socket) => {
         
     })
 
+    socket.on('typing', (info, callback) => {
+        // console.log(info)
+        socket.broadcast.to(info.room).emit('typing', info.name)
+        callback()
+    })
+
     // event for user generated messages
     socket.on('sendMessage', (message, callback) => {
         const user = getUser(socket.id);
-
+        // console.log(message)
         io.to(user.room).emit('message', {user: user.name, text: message, time: moment().format('h:mm a')})
         io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
         callback()
