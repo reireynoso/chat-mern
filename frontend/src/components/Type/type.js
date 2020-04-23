@@ -18,7 +18,7 @@ const Type = ({typers}) => {
     return(
         <div className="typers-field">
             {typers.map((typer,index) => 
-            <span>{typer}
+            <span key={`${index+typer}`}>{typer}
                 {checkWhich(index + 1)} 
             </span>)}
             {typers.length === 1 ? "is" : "are"} typing...
