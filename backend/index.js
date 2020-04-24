@@ -2,6 +2,7 @@ const express = require('express')
 const socketio = require('socket.io')
 const http = require('http')
 const moment = require('moment')
+require('./db/mongoose')
 
 const {addUser, removeUser, getUser, getUsersInRoom } = require('./users')
 
