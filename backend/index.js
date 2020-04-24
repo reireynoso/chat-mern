@@ -3,15 +3,17 @@ const socketio = require('socket.io')
 const http = require('http')
 const moment = require('moment')
 require('./db/mongoose')
+const dbseeds = require('./db/seeds')
+const User = require('./models/User')
 
 const {addUser, removeUser, getUser, getUsersInRoom } = require('./users')
 
 const PORT = process.env.PORT || 4000
 const app = express();
 
-const router = require('./router')
+// const router = require('./router')
 
-app.use(router)
+// app.use(router)
 
 // if you want to do something real-time, use sockets, not http. They are slow. 
 // good for serving up websites.
@@ -25,24 +27,32 @@ io.on('connection', (socket) => {
 
     //handler for receiving emit from client. first arg has to match
     //On socket.on, and socket.emit, the callback func can take in another callback func as a second arg in params
-    socket.on('join', ({name, room}, callback) => {
+    socket.on('join', async({name, room}, callback) => {
         const {error, user} = addUser({id: socket.id, name, room})
 
-        if(error){
+         if(error){
             return callback(error)
         }
 
-        socket.join(user.room) //joins a user in a room
+        // const user = new User({name,room})  
+        // try{
+        //     await user.save()
 
-        socket.emit('message', {user: 'admin', text: `${user.name}. Welcome to the room, ${user.room}`, time: moment().format('h:mm a')})
-        socket.broadcast.to(user.room).emit('message', {user: 'admin', text:`${user.name} has joined`, time: moment().format('h:mm a')})// will send a message to everyone but that user
-        // const error = true;
-        // if(error){
-        //     callback({error: 'error'}) // trigger a response after socket.on is being emitted , error handling
+            socket.join(user.room) //joins a user in a room
+
+            socket.emit('message', {user: 'admin', text: `${user.name}. Welcome to the room, ${user.room}`, time: moment().format('h:mm a')})
+            socket.broadcast.to(user.room).emit('message', {user: 'admin', text:`${user.name} has joined`, time: moment().format('h:mm a')})// will send a message to everyone but that user
+            // const error = true;
+            // if(error){
+            //     callback({error: 'error'}) // trigger a response after socket.on is being emitted , error handling
+            // }
+            io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
+            callback();
+        // }catch(e){
+        //     res.status(400)
+        //     return callback(e)
         // }
-        io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
-        callback();
-        
+       
     })
 
     socket.on('typing', (info, callback) => {
@@ -72,5 +82,6 @@ io.on('connection', (socket) => {
 })
 
 server.listen(PORT, () => {
+    // dbseeds()
     console.log("Server in on " + PORT)
 })
