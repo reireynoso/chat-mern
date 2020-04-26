@@ -3,6 +3,7 @@ const socketio = require('socket.io')
 const http = require('http')
 const moment = require('moment')
 const cors = require('cors')
+require('dotenv').config()
 require('./db/mongoose')
 const dbseeds = require('./db/seeds')
 // const User = require('./models/User')
@@ -15,7 +16,6 @@ const app = express();
 app.use(cors())
 app.use(roomRoutes)
 // const router = require('./router')
-
 // app.use(router)
 
 // if you want to do something real-time, use sockets, not http. They are slow. 
