@@ -67,7 +67,7 @@ const Chat = ({location}) => {
         //handle messaging
         socket.on('message', (message) => {
             setMessages(messages => [...messages, message])
-            console.log(message)
+            // console.log(message)
         })
         
         // get users in room

@@ -5,7 +5,7 @@ const moment = require('moment')
 const cors = require('cors')
 require('./db/mongoose')
 const dbseeds = require('./db/seeds')
-const User = require('./models/User')
+// const User = require('./models/User')
 const roomRoutes = require('./controllers/RoomController')
 
 const {addUser, removeUser, getUser, getUsersInRoom } = require('./users')
@@ -40,7 +40,6 @@ io.on('connection', (socket) => {
         // const user = new User({name,room})  
         // try{
         //     await user.save()
-
             socket.join(user.room) //joins a user in a room
 
             socket.emit('message', {user: 'admin', text: `${user.name}. Welcome to the room, ${user.room}`, time: moment().format('h:mm a')})
@@ -59,7 +58,6 @@ io.on('connection', (socket) => {
     })
 
     socket.on('typing', (info, callback) => {
-        // console.log(info)
         socket.broadcast.to(info.room).emit('typing', info)
         callback()
     })
@@ -67,10 +65,9 @@ io.on('connection', (socket) => {
     // event for user generated messages
     socket.on('sendMessage', (message, callback) => {
         const user = getUser(socket.id);
-        // console.log(message)
         socket.to(user.room).emit('typing', {name: user.name, value: "", room: user.room})
         io.to(user.room).emit('message', {user: user.name, text: message, time: moment().format('h:mm a')})
-        io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
+        // io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
         callback()
     })
 
@@ -80,6 +77,7 @@ io.on('connection', (socket) => {
         const user = removeUser(socket.id)
         if(user){
             io.to(user.room).emit('message', {user: 'admin', text: `${user.name} has left.`, time: moment().format('h:mm a')})
+            io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)})
         }
     })
 })
