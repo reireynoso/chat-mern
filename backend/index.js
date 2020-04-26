@@ -2,15 +2,18 @@ const express = require('express')
 const socketio = require('socket.io')
 const http = require('http')
 const moment = require('moment')
+const cors = require('cors')
 require('./db/mongoose')
 const dbseeds = require('./db/seeds')
 const User = require('./models/User')
+const roomRoutes = require('./controllers/RoomController')
 
 const {addUser, removeUser, getUser, getUsersInRoom } = require('./users')
 
 const PORT = process.env.PORT || 4000
 const app = express();
-
+app.use(cors())
+app.use(roomRoutes)
 // const router = require('./router')
 
 // app.use(router)
